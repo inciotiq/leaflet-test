@@ -1,9 +1,7 @@
 import './App.css'
-import React, {useEffect} from 'react'
+import React, { useEffect } from 'react'
 import L from 'leaflet'
 import data from './map/114.json'
-
-// import {MapRenderer}  from './MapRenderer'
 
 function App () {
   useEffect(() => {
@@ -14,45 +12,40 @@ function App () {
     }).addTo(map)
 
     let indoorLayer0 = L.geoJSON(data.features, {
-      filter: (feature, layer) => {
-        try {
-          let indoor = feature.properties.indoor
-          let level = feature.properties.level
-          return !!indoor && level == 0
-        } catch (e) {
-          // console.error('not an indoor feature')
-        }
-      }
+      filter: filterLevel(0)
     }).addTo(map)
 
     let indoorLayer1 = L.geoJSON(data.features, {
-      filter: (feature, layer) => {
-        try {
-          let indoor = feature.properties.indoor
-          let level = feature.properties.level
-
-          return !!indoor && level == 1
-        } catch (e) {
-          // console.error('not an indoor feature')
-        }
-      }
+      filter: filterLevel(1)
     }).addTo(map)
 
     const layerControl = L.control.layers().addTo(map)
 
-    let layerGroup = L.layerGroup([indoorLayer0, indoorLayer1])
+    layerControl.addOverlay(indoorLayer0, 'Level 0')
+    layerControl.addOverlay(indoorLayer1, 'Level 1')
 
-    layerControl.addOverlay(layerGroup, 'indoor')
+    return () => {
+      map.remove()
+    }
+  }, [])
 
-    return () => {map.remove();
-    };
-  }, []);
-  
   return (
     <div className="App">
-      {/*<MapRenderer/>*/}
     </div>
   )
+}
+
+let filterLevel = (tlevel) => {
+  return (feature, layer) => {
+    try {
+      let indoor = feature.properties.indoor
+      let level = feature.properties.level
+
+      return !!indoor && level == tlevel
+    } catch (e) {
+      // console.error('not an indoor feature')
+    }
+  }
 }
 
 export default App
