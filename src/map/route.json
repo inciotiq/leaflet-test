@@ -1,0 +1,51 @@
+{
+  "bbox": null,
+  "metadata": {
+    "id": null,
+    "attribution": "culturati indoor api",
+    "service": "routing",
+    "timestamp": 1698742462,
+    "query": null,
+    "engine": null
+  },
+  "routes": [
+    {
+      "legs": null,
+      "summary": null,
+      "segments": null,
+      "bbox": null,
+      "geometry": null,
+      "decodedGeometry": [
+        [
+          39.93973470348,
+          32.85855912143
+        ],
+        [
+          39.93973047909,
+          32.8585381378
+        ],
+        [
+          39.9396964508,
+          32.85854383539
+        ],
+        [
+          39.93966250483,
+          32.85854951921
+        ],
+        [
+          39.93965137476,
+          32.85855138279
+        ],
+        [
+          39.93962625086,
+          32.85855558946
+        ],
+        [
+          39.93962853988,
+          32.85857663753
+        ]
+      ],
+      "way_points": null
+    }
+  ]
+}
