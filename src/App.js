@@ -36,7 +36,11 @@ function App () {
 
     layerControl.addOverlay(indoorLayer0, 'Level 0')
     layerControl.addOverlay(indoorLayer1, 'Level 1')
-    let routeLayer = L.polyline(route.routes[0].decodedGeometry, { color: 'red' }).addTo(map)
+    let routeLayer = L.polyline(route.routes[0].decodedGeometry, {
+      color: '#ab117a',
+      weight: 5,
+      smoothFactor: 10
+    }).addTo(map)
 
     layerControl.addOverlay(routeLayer, 'route')
 
@@ -72,9 +76,9 @@ let filterLevel = (tlevel) => {
 let styleFeatures = () => {
   return (featuresKey) => {
     if (featuresKey.properties.highway === 'footway') {
-      return { color: '#7b8e93' }
-    // } else if (featuresKey.properties.door) {
-    //   return { color: '#50b2d0' }
+      return { color: '#7b8e93', dashArray: '10, 10' }
+      // } else if (featuresKey.properties.door) {
+      //   return { color: '#50b2d0' }
     } else if (featuresKey.properties.indoor == 'room') {
       return { color: '#b68573' }
     } else {
