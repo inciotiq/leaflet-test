@@ -19,51 +19,29 @@ function App () {
     // map.setMaxBounds(L.latLngBounds(southWest, northEast))
 
     let indoorLayer0 = L.geoJSON(data.features, {
-      filter: filterLevel(0)
+      filter: filterLevel(0),
+      style: styleFeatures(),
+      pointToLayer: pointMarkers(),
+      onEachFeature: onEachFeature
     }).addTo(map)
 
-    // let indoorLayer1 = L.geoJSON(data.features, {
-    //   filter: filterLevel(1)
-    // }).addTo(map)
+    let indoorLayer1 = L.geoJSON(data.features, {
+      filter: filterLevel(1),
+      style: styleFeatures(),
+      pointToLayer: pointMarkers(),
+      onEachFeature: onEachFeature
+    }).addTo(map)
 
     const layerControl = L.control.layers().addTo(map)
 
     layerControl.addOverlay(indoorLayer0, 'Level 0')
-    // layerControl.addOverlay(indoorLayer1, 'Level 1')
+    layerControl.addOverlay(indoorLayer1, 'Level 1')
+    let routeLayer = L.polyline(route.routes[0].decodedGeometry, { color: 'red' }).addTo(map)
 
-    let doors = []
+    layerControl.addOverlay(routeLayer, 'route')
 
-    for (let featuresKey of data.features) {
-      if (featuresKey.geometry.type === 'LineString' && featuresKey.properties.highway === 'footway') {
-        let latlngs = featuresKey.geometry.coordinates.map((lonlat) => [lonlat[1], lonlat[0]])
-
-        L.polyline(latlngs, { color: 'green' }).addTo(map)
-
-        for (const latlng of latlngs) {
-          L.circle(latlng, {
-            color: 'green',
-            radius: .3, stroke: false, fillOpacity: 1
-          }).bindPopup(`"latitude": ${latlng[0]}, "longitude": ${latlng[1]}`).addTo(map)
-        }
-      } else if (featuresKey.geometry.type === 'Point' && featuresKey.properties.door) {
-        let latlng = featuresKey.geometry.coordinates
-
-        let door = L.circle({
-          lat: latlng[1],
-          lon: latlng[0]
-        }, {
-          radius: .3,
-          fillColor: 'black',
-          fillOpacity: 1,
-          stroke: false
-        }).bindPopup(`"latitude": ${latlng[1]}, "longitude": ${latlng[0]}`)
-        doors.push(door)
-      }
-    }
-
-    L.polyline(route.routes[0].decodedGeometry, { color: 'red' }).addTo(map)
-
-    doors.forEach(door => door.addTo(map))
+    //
+    // doors.forEach(door => door.addTo(map))
 
     return () => {
       map.remove()
@@ -80,12 +58,50 @@ let filterLevel = (tlevel) => {
   return (feature, layer) => {
     try {
       let indoor = feature.properties.indoor
+      let door = feature.properties.door
+      let highway = feature.properties.highway
       let level = feature.properties.level
 
-      return !!indoor && level == tlevel
+      return level == tlevel && (!!indoor || !!door || !!highway)
     } catch (e) {
       // console.error('not an indoor feature')
     }
+  }
+}
+
+let styleFeatures = () => {
+  return (featuresKey) => {
+    if (featuresKey.properties.highway === 'footway') {
+      return { color: '#7b8e93' }
+    // } else if (featuresKey.properties.door) {
+    //   return { color: '#50b2d0' }
+    } else if (featuresKey.properties.indoor == 'room') {
+      return { color: '#b68573' }
+    } else {
+      return { color: '#fff' }
+    }
+  }
+}
+
+function pointMarkers () {
+  return function (feature, latlng) {
+    return L.circleMarker(latlng, {
+      radius: 6,
+      fillColor: '#577983',
+      color: '#000',
+      weight: 1,
+      opacity: 1,
+      fillOpacity: 0.8
+    })
+  }
+}
+
+function onEachFeature (feature, layer) {
+  // does this feature have a property named popupContent?
+  let latlng = feature.geometry.coordinates
+  if (feature.geometry.type === 'Point' && latlng) {
+
+    layer.bindPopup(`"latitude": ${latlng[1]}, "longitude": ${latlng[0]}, "level": ${feature.properties.level}`)
   }
 }
 
